@@ -15,7 +15,9 @@ sub config { {
     query_params => {
         authorize => {
             response_type => 'code',
-            scope         => 'email,public_profile,user_friends',
+            scope         => 'email,public_profile',
+            # user_friends need app review - get this from config
+            #scope         => 'email,public_profile,user_friends',
         }
     }
 } }
