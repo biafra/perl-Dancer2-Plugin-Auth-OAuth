@@ -19,17 +19,19 @@ needed routes (defaults to `/auth/$provider` and `/auth/$provider/callback`).
 So if you define the Twitter provider in your config, you should automatically
 get `/auth/twitter` and `/auth/twitter/callback`.
 
-After a successful OAuth dance, the user info is stored in the session. What
-you do with it afterwards is up to you.
+After a successful OAuth dance, the user info is stored in the session "oauth".
+What you do with it afterwards is up to you. Please note the user will
+continue to be authenticated until the Dancer2 session has expired,
+whenever that might be.
 
 # CONFIGURATION
 
 The plugin comes with support for Facebook, Google, Twitter, GitHub, Stack
-Exchange and LinkedIn (other providers aren't hard to add, send me a pull
-request when you add more!)
+Exchange, LinkedIn and several more (other providers aren't hard to add,
+send me a pull request when you add more!).
 
 All it takes to use OAuth authentication for a given provider, is to add
-the configuration for it.
+the configuration for it. You don't need anything else.
 
 The YAML below shows all available options.
 
@@ -45,6 +47,12 @@ The YAML below shows all available options.
               client_id: your_client_id
               client_secret: your_client_secret
             fields: id,email,name,gender,picture
+            # Original default Facebook scope was 'email,public_profile,user_friends'
+            # Since March 2018 'user_friends' requires an app review.
+            # Add the following three lines if you don't have it reviewed.
+            query_params:
+              authorize:
+                scope: email,public_profile
           Google:
             tokens:
               client_id: your_client_id
@@ -99,75 +107,44 @@ The YAML below shows all available options.
               client_id: your_client_id
               client_secret: your_client_secret
             format: 'json'
+          SalesForce:
+            tokens:
+              client_id: your_client_id
+              client_secret: your_client_secret
 
 \[\*\] default value, may be omitted.
 
-# AUTHENTICATION VS. FUNCTIONAL THIRD PARTY LOGIN
+## FUNCTIONAL LOGIN
 
-The main purpose of this module is simply to authenticate against third party
-identify providers, but your Dancer2 app might additionally use the id\_token to
-access the API of the same (or other) third parties to enable you to do cool
-stuff with your apps, like show a feed, access data etc.
+The main purpose of this module is simply to authenticate against a third
+party Identity Provider (IdP).
 
-Because access to the third party systems would be cut off when the id\_token
+However you can get a bit more than that.
+
+Your Dancer2 app might additionally use the "id\_token" to access the API of
+the same (or other) third parties to enable you to do cool stuff with your
+apps, like show a feed, access data, etc.
+
+Because access to the third party systems would be cut off when the "id\_token"
 expires, Dancer2::Plugin::Auth::OAuth will automatically set up the route
 `/auth/$provider/refresh`. Call this when the token has expired to try to
 refresh the token without bumping the user back to log in. You can optionally
 tell Dancer2::Plugin::Auth::OAuth to bump the user back to the login page if
 for whatever reason the refresh fails.
 
-In addition, Dancer2::Plugin::Auth::OAuth will save or generate a auth session
+In addition, Dancer2::Plugin::Auth::OAuth will save or generate an auth session
 key called "expires", which is (usually) number of seconds from epoch. Check
-this to determine if the id\_token has expired (see examples below).
+this to determine if the "id\_token" has expired (see examples below).
 
-## AUTHENTICATION
-
-An example of a simple single system authentication. Note that once
-authenticated the user will continue to be authenticated until the Dancer2
-session has expired, whenever that might be:
-
-    hook before => sub {
-        my $session_data = session->read('oauth');
-        my $provider = "facebook"; # Lower case of the authentication plugin used
-
-        if ((!defined $session_data || !defined $session_data->{$provider} || !defined $session_data->{$provider}{id_token}) && request->path !~ m{^/auth}) {
-          return forward "/auth/$provider";
-        }
-    };
-
-If you want to be sure they have a valid id\_token at all times:
-
-    hook before => sub {
-        my $session_data = session->read('oauth');
-        my $provider = "facebook"; # Lower case of the authentication plugin used
-
-        my $now = DateTime->now->epoch;
-
-        if ((!defined $session_data || !defined $session_data->{$provider} || !defined $session_data->{$provider}{id_token}) && request->path !~ m{^/auth}) {
-          return forward '/auth/$provider';
-
-        } elsif (defined $session_data->{$provider}{refresh_token} && defined $session_data->{$provider}{expires} && $session_data->{$provider}{expires} < $now && request->path !~ m{^/auth}) {
-          return forward "/auth/$provider/refresh";
-
-        }
-    };
-
-in the case where you're using the refresh functionality, a failure of the
-refresh will send the user back to the error\_url. If you want to them to instead
-be directed back to the main authentication (log in page) then please set the
-configuration option `reauth_on_refresh_fail`.
-
-## FUNCTIONAL THIRD PARTY LOGIN
-
-Authenticate using the same method as above, but be sure to use the 'refresh'
-functionality, as the logged in user will need to have a valid id\_token at all
-times.
+Authenticate using one of the examples below but be sure to use the
+'refresh' functionality, as the logged in user will need to have a
+valid "id\_token" at all times.
 
 Also make sure that you set the scope of your authentication to tell the third
 party what you wish to access (and for Microsoft/Azure also set the resource,
 for the same reason).
 
-Once you've got an active session you can get the id\_token to use in further
+Once you've got an active session you can get the "id\_token" to use in further
 calls to the providers backend systems with:
 
     my $session_data = session->read('oauth');
@@ -175,9 +152,9 @@ calls to the providers backend systems with:
 
 # SETTING THE SCOPE
 
-If you're authenticating in order to use the id\_token issued, or if login
+If you're authenticating in order to use the "id\_token" issued, or if login
 requires a specific 'scope' setting, you can change these values in the initial
-calls like this within your yml config (example provided for AzureAD plugin).
+calls like this within your YAML config (example provided for AzureAD plugin).
 
     Auth::OAuth:
       providers:
@@ -192,6 +169,121 @@ Please view the provider source/documentation for what these default values are.
 
 You may also need to set a value for "resource" in the same way. Refer to your
 providers OAuth documentation.
+
+# AUTHENTICATION EXAMPLES
+
+The response from the IdP is stored as a hash in the session with key "oauth".
+An example of a Facebook response:
+
+    {
+        facebook   {
+            access_token   "...",
+            expires        1662472004,
+            expires_in     5183933,
+            issued_at      1657288071,
+            token_type     "bearer",
+            user_info      {
+                email                "someone@example.com",
+                id                   12345678901234567,
+                name                 "José do Telhado",
+                picture              {
+                    data   {
+                        height          50,
+                        is_silhouette   0,
+                        url             "https://platform-lookaside.fbsbx.com/platform/profilepic/...",
+                        width           50
+                    }
+                },
+            }
+        }
+    }
+
+- Full site needs a user authentication for a specific IdP.
+
+    An example of a simple single system authentication.
+
+        hook before => sub {
+            my $session_data = session->read('oauth');
+            my $provider = "facebook"; # Lower case of the authentication plugin used
+
+            if ((!defined $session_data || !defined $session_data->{$provider} || !defined $session_data->{$provider}{id_token}) && request->path !~ m{^/auth}) {
+              return forward "/auth/$provider";
+            }
+        };
+
+    If you want to be sure they have a valid "id\_token" at all times:
+
+        hook before => sub {
+            my $session_data = session->read('oauth');
+            my $provider = "facebook"; # Lower case of the authentication plugin used
+
+            my $now = DateTime->now->epoch;
+
+            if ((!defined $session_data || !defined $session_data->{$provider} || !defined $session_data->{$provider}{id_token}) && request->path !~ m{^/auth}) {
+              return forward '/auth/$provider';
+
+            } elsif (defined $session_data->{$provider}{refresh_token} && defined $session_data->{$provider}{expires} && $session_data->{$provider}{expires} < $now && request->path !~ m{^/auth}) {
+              return forward "/auth/$provider/refresh";
+
+            }
+        };
+
+    in the case where you're using the refresh functionality, a failure of the
+    refresh will send the user back to the "error\_url". If you want to them
+    to instead be directed back to the main authentication (log in page) then
+    please set the configuration option `reauth_on_refresh_fail`.
+
+    If the provider(s) you are using don't have the "id\_token"
+    change the example accordingly.
+
+- Site has a mix of public zones and private or needing use authentication
+
+    1\. You only use one provider
+
+        get '/we/need/a/user/here' => sub {
+            my $session_data = session->read('oauth');
+            my $provider = "facebook";
+
+            redirect '/auth/$provider' unless $session_data && defined $session_data->{$provider};
+
+            ...
+        }
+
+    2\. You also have a login page to choose from a list of
+    providers accepted by the site
+
+    You may update the configuration file:
+
+        "Auth::OAuth":
+            success_url: /login/ok
+            error_url: /login/fail
+
+    And on your code
+
+        get '/we/need/a/user/here' => sub {
+            my $session_data = session->read('oauth');
+
+            redirect '/login' unless $session_data;
+
+            ...
+        }
+
+        get '/login/ok' => sub {
+            my $session_data = session->read('oauth');
+
+            redirect '/login' unless $session_data;
+
+            # Do something with the user data, update DB,
+            # update session, etc
+
+        }
+
+    The login page can just have a list of the providers with
+    a link to "/auth/&lt;lc-name-of-the-provider>"
+
+    You can mix this plugin with `Dancer2::Plugin::Auth::Tiny` and
+    on '/login/ok' you just define the 'user' session. Afterwards
+    all validation can be against 'user' and not 'oauth'.
 
 # AUTHOR
 
