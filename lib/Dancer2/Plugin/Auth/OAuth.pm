@@ -124,6 +124,11 @@ The YAML below shows all available options.
             client_id: your_client_id
             client_secret: your_client_secret
           fields: id,email,name,gender,picture
+          # Original default Facebook scope was 'email,public_profile,user_friends'
+          # Now 'user_friends' require an app review
+          query_params:
+            authorize:
+              scope: email,public_profile
         Google:
           tokens:
             client_id: your_client_id
