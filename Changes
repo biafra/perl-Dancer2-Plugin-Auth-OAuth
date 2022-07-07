@@ -2,7 +2,6 @@ Revision history for Dancer2-Plugin-Auth-OAuth
 
 {{$NEXT}}
 
-0.19  2022-07-07 01:26 WEST
         - merged github PR #25 (thanks Pero Moretti!)
 
 0.18  2022-04-28 12:45:17 CEST
