@@ -64,16 +64,16 @@
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/Pero-Moretti/perl-Dancer2-Plugin-Auth-OAuth/issues"
+         "web" : "https://github.com/biafra/perl-Dancer2-Plugin-Auth-OAuth/issues"
       },
-      "homepage" : "https://github.com/Pero-Moretti/perl-Dancer2-Plugin-Auth-OAuth",
+      "homepage" : "https://github.com/biafra/perl-Dancer2-Plugin-Auth-OAuth",
       "repository" : {
          "type" : "git",
-         "url" : "https://github.com/Pero-Moretti/perl-Dancer2-Plugin-Auth-OAuth.git",
-         "web" : "https://github.com/Pero-Moretti/perl-Dancer2-Plugin-Auth-OAuth"
+         "url" : "https://github.com/biafra/perl-Dancer2-Plugin-Auth-OAuth.git",
+         "web" : "https://github.com/biafra/perl-Dancer2-Plugin-Auth-OAuth"
       }
    },
-   "version" : "0.19",
+   "version" : "0.18",
    "x_contributors" : [
       "B10m <menno@b10m.net>",
       "Biafra <paulo.a.ferreira@gmail.com>",
