@@ -73,7 +73,7 @@
          "web" : "https://github.com/biafra/perl-Dancer2-Plugin-Auth-OAuth"
       }
    },
-   "version" : "0.19",
+   "version" : "0.20",
    "x_contributors" : [
       "B10m <menno@b10m.net>",
       "Biafra <paulo.a.ferreira@gmail.com>",
