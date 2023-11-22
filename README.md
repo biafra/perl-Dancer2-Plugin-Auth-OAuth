@@ -198,7 +198,7 @@ An example of a Facebook response:
         }
     }
 
-- Full site needs a user authentication for a specific IdP.
+- Full site needs a user authentication from a specific IdP.
 
     An example of a simple single system authentication.
 
@@ -229,8 +229,8 @@ An example of a Facebook response:
         };
 
     in the case where you're using the refresh functionality, a failure of the
-    refresh will send the user back to the "error\_url". If you want to them
-    to instead be directed back to the main authentication (log in page) then
+    refresh will send the user back to the "error\_url". If, instead, you want them
+    to be directed back to the main authentication (log in page) then
     please set the configuration option `reauth_on_refresh_fail`.
 
     If the provider(s) you are using don't have the "id\_token"
@@ -283,7 +283,8 @@ An example of a Facebook response:
 
     You can mix this plugin with `Dancer2::Plugin::Auth::Tiny` and
     on '/login/ok' you just define the 'user' session. Afterwards
-    all validation can be against 'user' and not 'oauth'.
+    you can just add `needs login` to all your routes and don't use
+    any route preamble to validate 'oauth'.
 
 # AUTHOR
 
