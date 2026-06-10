@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use DateTime;
-use Digest::MD5 qw(md5_hex);
+use Crypt::SysRandom qw(random_bytes);
 use HTTP::Request::Common;
 use JSON::MaybeXS;
 use LWP::UserAgent;
@@ -67,7 +67,7 @@ sub _default_args_v1 {
         consumer_secret  => $self->provider_settings->{tokens}{consumer_secret},
         signature_method => $self->provider_settings->{signature_method} || 'HMAC-SHA1',
         timestamp        => DateTime->now->epoch,
-        nonce            => md5_hex(time),
+        nonce            => unpack('H*', random_bytes(16)),
     );
 }
 
