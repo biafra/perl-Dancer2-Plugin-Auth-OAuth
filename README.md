@@ -292,7 +292,9 @@ Menno Blom <blom@cpan.org>
 
 # COPYRIGHT
 
-Copyright 2014- Menno Blom
+Copyright 2014-2020 - Menno Blom
+
+2020- Maintained by Biafra <biafra@cpan.org>
 
 # LICENSE
 
