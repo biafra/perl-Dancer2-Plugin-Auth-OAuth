@@ -374,13 +374,13 @@ any route preamble to validate 'oauth'.
 
 =head1 AUTHOR
 
-Menno Blom E<lt>blom@cpan.orgE<gt>
+Menno Blom
 
 =head1 COPYRIGHT
 
 Copyright 2014-2020 - Menno Blom
 
-2020- Maintained by Biafra E<lt>biafra@cpan.orgE<gt>
+2020- Maintained by Biafra E<lt>biafra@moosaico.comE<gt>
 
 =head1 LICENSE
 

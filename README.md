@@ -288,13 +288,13 @@ An example of a Facebook response:
 
 # AUTHOR
 
-Menno Blom <blom@cpan.org>
+Menno Blom
 
 # COPYRIGHT
 
 Copyright 2014-2020 - Menno Blom
 
-2020- Maintained by Biafra <biafra@cpan.org>
+2020- Maintained by Biafra <biafra@moosaico.com>
 
 # LICENSE
 
